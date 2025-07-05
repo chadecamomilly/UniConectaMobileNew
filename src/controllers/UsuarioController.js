@@ -4,7 +4,7 @@ import ModelError from "../models/ModelError";
 
 export default class UsuarioController {
   constructor() {
-    this.dao = new DaoUsuario(); // Instancia o DaoUsuario (que já usa o SDK web)
+    this.dao = new DaoUsuario(); 
   }
 
   /**
@@ -187,7 +187,6 @@ export default class UsuarioController {
     }
   }
 
-  // Métodos auxiliares para padronizar o formato de retorno das operações
   _retornarSucesso(mensagem, dados = null) {
     return { sucesso: true, mensagem, dados };
   }

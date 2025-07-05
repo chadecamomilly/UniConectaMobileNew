@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#092261', // Ajuste para sua cor uniblue
+    backgroundColor: '#092261', 
     paddingVertical: 20,
   },
   container: {
@@ -215,12 +215,11 @@ const styles = StyleSheet.create({
   logo: {
     width: 192,
     height: 192,
-    marginBottom: 32,
   },
   formContainer: {
     width: '100%',
     maxWidth: 400,
-    backgroundColor: '#051640', // Ajuste para sua cor uniblue-light
+    backgroundColor: '#051640', 
     borderRadius: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -237,14 +236,14 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   errorMessage: {
-    color: '#ff6347', // Um tom de vermelho/laranja para erros (Tomato)
+    color: '#ff6347', 
     textAlign: 'center',
     marginBottom: 10,
     fontSize: 14,
     fontWeight: 'bold',
   },
   successMessage: {
-    color: '#32cd32', // Um tom de verde para sucesso (LimeGreen)
+    color: '#32cd32', 
     textAlign: 'center',
     marginBottom: 10,
     fontSize: 14,

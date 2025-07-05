@@ -1,17 +1,16 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { auth, db } from '../config/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import { ref, get, set } from 'firebase/database';
+import { router } from 'expo-router';
 
-import { auth, db } from '../config/firebase'; 
-import { onAuthStateChanged } from 'firebase/auth'; 
-import { ref, get, set } from 'firebase/database'; 
-
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Função interna para criar estrutura inicial do usuário no Realtime Database
   const createInitialUserData = async (firebaseUser) => {
     try {
       console.log(`[AuthContext] Criando dados iniciais para usuário ${firebaseUser.uid}`);
@@ -19,19 +18,17 @@ export function AuthProvider({ children }) {
       const initialUserData = {
         email: firebaseUser.email,
         nome: firebaseUser.displayName || 'Novo Usuário',
-        perfil: 'aluno',
+        tipo: 'aluno',
         dataCriacao: new Date().toISOString()
       };
 
-      // Salva dados principais em /usuarios
       await set(ref(db, `usuarios/${firebaseUser.uid}`), initialUserData);
 
-      // Se o perfil for 'aluno', cria estrutura em /alunos
-      if (initialUserData.perfil === 'aluno') {
+      if (initialUserData.tipo === 'aluno') {
         const initialAlunoData = {
           foto: firebaseUser.photoURL || '',
           nome: firebaseUser.displayName || 'Novo Usuário',
-          esportes: []
+          esportes: [] 
         };
         await set(ref(db, `alunos/${firebaseUser.uid}`), initialAlunoData);
       }
@@ -44,7 +41,6 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // Função para carregar dados completos do usuário a partir do Firebase
   const loadUserData = async (firebaseUser) => {
     try {
       console.log(`[AuthContext] Carregando dados para usuário: ${firebaseUser.uid}`);
@@ -52,34 +48,35 @@ export function AuthProvider({ children }) {
       const userRef = ref(db, `usuarios/${firebaseUser.uid}`);
       const userSnapshot = await get(userRef);
 
-      let userData = {};
+      let userDataFromDb = {};
       if (!userSnapshot.exists()) {
-        console.log('[AuthContext] Dados do usuário não encontrados, criando dados iniciais.');
-        userData = await createInitialUserData(firebaseUser);
+        console.log('[AuthContext] Dados do usuário no DB não encontrados, criando dados iniciais.');
+        userDataFromDb = await createInitialUserData(firebaseUser);
       } else {
-        userData = userSnapshot.val();
-        console.log('[AuthContext] Dados do usuário encontrados:', userData);
+        userDataFromDb = userSnapshot.val();
+        console.log('[AuthContext] Dados do usuário encontrados do DB:', userDataFromDb);
       }
 
-      // Busca dados adicionais se o perfil for 'aluno'
       let alunoData = {};
-      if (userData.perfil === 'aluno') {
-        const alunoRef = ref(db, `alunos/${firebaseUser.uid}`);
+      let userEsportes = []; 
+      if (userDataFromDb.tipo === 'aluno' || userDataFromDb.tipo === 'responsavel') { 
+        const alunoRef = ref(db, `alunos/${firebaseUser.uid}`); 
         const alunoSnapshot = await get(alunoRef);
         if (alunoSnapshot.exists()) {
           alunoData = alunoSnapshot.val();
+          userEsportes = alunoData.esportes || []; 
           if (!alunoData.foto && firebaseUser.photoURL) {
             alunoData.foto = firebaseUser.photoURL;
           }
-          console.log('[AuthContext] Dados de aluno:', alunoData);
+          console.log('[AuthContext] Dados adicionais (aluno/responsável):', alunoData);
         } else {
-            console.warn('[AuthContext] Dados de aluno não encontrados. Criando estrutura básica...');
-            alunoData = {
-                foto: firebaseUser.photoURL || '',
-                nome: firebaseUser.displayName || 'Novo Usuário',
-                esportes: []
-            };
-            await set(ref(db, `alunos/${firebaseUser.uid}`), alunoData);
+          console.warn('[AuthContext] Dados adicionais não encontrados. Criando estrutura básica...');
+          alunoData = {
+            foto: firebaseUser.photoURL || '',
+            nome: firebaseUser.displayName || 'Novo Usuário',
+            esportes: []
+          };
+          await set(ref(db, `alunos/${firebaseUser.uid}`), alunoData);
         }
       }
 
@@ -89,12 +86,14 @@ export function AuthProvider({ children }) {
         displayName: firebaseUser.displayName,
         photoURL: firebaseUser.photoURL,
         emailVerified: firebaseUser.emailVerified,
-        ...userData,
+        perfil: userDataFromDb.tipo,
+        meusEsportes: userEsportes, 
+        ...userDataFromDb,
         ...alunoData
       };
 
     } catch (error) {
-      console.error('[AuthContext] Erro ao carregar ou criar dados:', error);
+      console.error('[AuthContext] Erro ao carregar ou criar dados do usuário:', error);
       setError(error);
       return {
         uid: firebaseUser.uid,
@@ -102,13 +101,13 @@ export function AuthProvider({ children }) {
         displayName: firebaseUser.displayName || 'Usuário',
         photoURL: firebaseUser.photoURL || '',
         perfil: 'aluno',
+        meusEsportes: [], 
         esportes: [],
         error: error.message
       };
     }
   };
 
-  // Monitora o estado de autenticação do Firebase
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setLoading(true);
@@ -116,15 +115,15 @@ export function AuthProvider({ children }) {
 
       try {
         if (firebaseUser) {
-          console.log('[AuthContext] Usuário autenticado:', firebaseUser.uid);
-          const userData = await loadUserData(firebaseUser);
-          setUser(userData);
+          console.log('[AuthContext] Usuário autenticado pelo Firebase Auth:', firebaseUser.uid);
+          const userFullData = await loadUserData(firebaseUser);
+          setUser(userFullData);
         } else {
-          console.log('[AuthContext] Nenhum usuário autenticado');
+          console.log('[AuthContext] Nenhum usuário autenticado no Firebase Auth');
           setUser(null);
         }
       } catch (err) {
-        console.error('[AuthContext] Erro no listener de autenticação:', err);
+        console.error('[AuthContext] Erro no listener de autenticação (onAuthStateChanged):', err);
         setError(err);
         setUser(null);
       } finally {
@@ -135,7 +134,6 @@ export function AuthProvider({ children }) {
     return () => unsubscribe();
   }, []);
 
-  // Função para forçar o recarregamento dos dados do usuário
   const refreshUser = async () => {
     if (!auth.currentUser) {
       console.log('[AuthContext] Nenhum usuário autenticado para refresh.');
@@ -160,6 +158,7 @@ export function AuthProvider({ children }) {
       await auth.signOut();
       setUser(null);
       console.log('[AuthContext] Logout realizado com sucesso.');
+      router.replace('/(auth)/login');
     } catch (error) {
       console.error('[AuthContext] Erro no logout:', error);
       setError(error);

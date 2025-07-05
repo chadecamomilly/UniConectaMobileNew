@@ -27,10 +27,9 @@ export default class DaoAluno {
       throw new ModelError("UID do Aluno inválido.");
     }
 
-    // MUDANÇA: Usar this.db e as funções ref() e get()
-    const databaseInstance = this.obterConexao(); // Obtém a instância do database
-    const dbRef = ref(databaseInstance, `alunos/${uid}`); // Cria uma referência
-    const snapshot = await get(dbRef); // Usa get() na referência
+    const databaseInstance = this.obterConexao(); 
+    const dbRef = ref(databaseInstance, `alunos/${uid}`);
+    const snapshot = await get(dbRef); 
 
     if (!snapshot.exists()) {
       throw new ModelError(`Aluno com UID ${uid} não encontrado.`);
@@ -71,11 +70,11 @@ export default class DaoAluno {
     if (!(aluno instanceof Aluno)) {
       throw new ModelError("Objeto inválido, esperado uma instância de Aluno.");
     }
-    Aluno.validarId(aluno.id); // Garante que o ID do aluno é válido
+    Aluno.validarId(aluno.id); 
 
     const databaseInstance = this.obterConexao();
-    const dbRef = ref(databaseInstance, `alunos/${aluno.id}`); // Cria referência ao caminho do aluno
-    await set(dbRef, aluno.toObject()); // Usa set() na referência
+    const dbRef = ref(databaseInstance, `alunos/${aluno.id}`); 
+    await set(dbRef, aluno.toObject()); 
   }
 
   /**
@@ -87,11 +86,11 @@ export default class DaoAluno {
     if (!(aluno instanceof Aluno)) {
       throw new ModelError("Objeto inválido, esperado uma instância de Aluno.");
     }
-    Aluno.validarId(aluno.id); // Garante que o ID é válido
+    Aluno.validarId(aluno.id); 
 
     const databaseInstance = this.obterConexao();
-    const dbRef = ref(databaseInstance, `alunos/${aluno.id}`); // Cria referência ao caminho do aluno
-    await update(dbRef, aluno.toObject()); // Usa update() na referência
+    const dbRef = ref(databaseInstance, `alunos/${aluno.id}`); 
+    await update(dbRef, aluno.toObject()); 
   }
 
   /**

@@ -1,5 +1,5 @@
-import { getDatabase, ref, push, update, remove, get, child } from "firebase/database";
-import app from "../../../config/firebase"; 
+import { getDatabase, ref, push, update, remove, get, set, child } from "firebase/database";
+import { db, app } from '../../../config/firebase'
 
 import Publicacao from "../Publicacao"; 
 import ModelError from "../ModelError"; 
@@ -42,7 +42,6 @@ export default class DaoPublicacao {
         const databaseInstance = this.obterConexao();
         const publicacoesRef = ref(databaseInstance, "publicacoes"); 
 
-        // Gera uma nova referência com um UID único (push) e obtém a chave
         const novaPublicacaoRef = push(publicacoesRef); 
         const uid = novaPublicacaoRef.key;
 
@@ -70,7 +69,7 @@ export default class DaoPublicacao {
         }
 
         const databaseInstance = this.obterConexao();
-        const publicacaoRef = ref(databaseInstance, `publicacoes/${uid}`); // Referência à publicação específica
+        const publicacaoRef = ref(databaseInstance, `publicacoes/${uid}`); 
 
         await update(publicacaoRef, publicacao.toObject());
     }
@@ -101,7 +100,7 @@ export default class DaoPublicacao {
 
         const databaseInstance = this.obterConexao();
         const publicacoesRef = ref(databaseInstance, "publicacoes");
-        const snapshot = await get(publicacoesRef); // Usa get() na referência
+        const snapshot = await get(publicacoesRef); 
 
         if (!snapshot.exists()) return [];
 

@@ -44,30 +44,25 @@ export default class PublicacaoController {
       if (!uid) {
         return this._retornarErro("UID da publicação é obrigatório para edição.");
       }
-      // Validação inicial dos campos obrigatórios (se necessário, para dados)
       if (!dados || !dados.autor || !dados.titulo || !dados.conteudo || !dados.esportes || !Array.isArray(dados.esportes) || dados.esportes.length === 0) {
         return this._retornarErro("Dados de edição (autor, titulo, conteudo, esportes) são obrigatórios e esportes deve ser um array não vazio.");
       }
 
 
-      // Busca a publicação existente para manter a data de criação e garantir que ela existe
       const publicacaoExistente = await this.dao.buscarPorId(uid);
       if (!publicacaoExistente) {
         return this._retornarErro("Publicação não encontrada para edição.");
       }
 
-      // Cria uma nova instância de Publicacao com os dados atualizados
-      // Reutiliza a data de criação da publicação existente
       const pubEditada = new Publicacao(
         uid,
-        publicacaoExistente.getDataCriacao(), // Mantém a data de criação original
+        publicacaoExistente.getDataCriacao(), 
         dados.autor,
         dados.titulo,
         dados.conteudo,
         dados.esportes
       );
 
-      // Edita a publicação no banco via DAO
       await this.dao.editar(uid, pubEditada);
 
       return this._retornarSucesso("Publicação editada com sucesso.", pubEditada.toObject());
@@ -91,18 +86,16 @@ export default class PublicacaoController {
         return this._retornarErro("UID da publicação é obrigatório para exclusão.");
       }
 
-      // Opcional: Verificar se a publicação existe antes de excluir para dar um erro mais específico
       const publicacaoExistente = await this.dao.buscarPorId(uid);
       if (!publicacaoExistente) {
         return this._retornarErro("Publicação não encontrada para exclusão.");
       }
 
-      // Exclui a publicação no banco via DAO
       await this.dao.excluir(uid);
 
       return this._retornarSucesso("Publicação excluída com sucesso.");
     } catch (error) {
-      if (error instanceof ModelError) { // Caso o DAO lance ModelError (ex: UID inválido)
+      if (error instanceof ModelError) { 
         return this._retornarErro(error.message);
       }
       console.error("Erro inesperado em excluirPublicacao:", error);
@@ -122,7 +115,6 @@ export default class PublicacaoController {
       }
 
       const publicacoes = await this.dao.buscarPorEsporte(esporteId);
-      // Mapeia cada instância de Publicacao para sua representação de objeto simples
       return this._retornarSucesso(
         "Publicações por esporte obtidas com sucesso.",
         publicacoes.map(pub => ({ uid: pub.getUid(), ...pub.toObject() })) // Inclui o UID aqui, pois toObject não o tem
@@ -143,7 +135,6 @@ export default class PublicacaoController {
   async listarTodasPublicacoes() {
     try {
       const publicacoes = await this.dao.buscarTodos();
-      // Mapeia cada instância de Publicacao para sua representação de objeto simples
       return this._retornarSucesso(
         "Todas as publicações obtidas com sucesso.",
         publicacoes.map(pub => ({ uid: pub.getUid(), ...pub.toObject() })) // Inclui o UID aqui

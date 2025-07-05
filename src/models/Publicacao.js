@@ -84,13 +84,12 @@ export default class Publicacao {
 
   }
 
-  // --- O MÉTODO toObject() está perfeito para o Realtime Database ---
   toObject() {
     return {
       autor: this.autor,
       titulo: this.titulo,
       conteudo: this.conteudo,
-      data_criacao: this.dataCriacao, // Supondo que seja uma string válida ou timestamp
+      data_criacao: this.dataCriacao, 
       esportes: this.esportes,
     };
   }

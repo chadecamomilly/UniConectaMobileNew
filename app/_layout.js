@@ -1,9 +1,10 @@
-import { Stack } from 'expo-router';
+import { Stack, Redirect } from 'expo-router';
 import { AuthProvider, useAuth } from '../contexts/AuthContext'; 
 import { ActivityIndicator, View } from 'react-native';
 
+
 function RootLayoutContent() {
-  const { user, loading } = useAuth(); 
+  const { user, loading } = useAuth();
 
   if (loading) {
     return (
@@ -15,10 +16,13 @@ function RootLayoutContent() {
 
   return (
     <Stack>
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+
       {user ? (
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Redirect href="/(tabs)/Home" /> 
       ) : (
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        <Redirect href="/(auth)/login" /> 
       )}
     </Stack>
   );

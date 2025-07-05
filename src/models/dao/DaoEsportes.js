@@ -56,7 +56,7 @@ export default class DaoEsportes {
     }
 
     const databaseInstance = this.obterConexao();
-    const dbRef = ref(databaseInstance, "esportes/"); // Referência ao nó raiz de esportes
+    const dbRef = ref(databaseInstance, "esportes/"); 
 
     await set(dbRef, esportesInstancia.toObject());
   }

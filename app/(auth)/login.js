@@ -30,16 +30,14 @@ export default function LoginScreen() {
 
   const router = useRouter();
 
-  // Função auxiliar para limpar mensagens
   const clearMessages = () => {
     setErro("");
     setMensagemSucesso("");
   };
 
   const handleLogin = async () => {
-    clearMessages(); // Limpa mensagens anteriores
+    clearMessages(); 
 
-    // Validações básicas antes de chamar o controller
     if (!email.trim() || !senha.trim()) {
       setErro("Email e senha são obrigatórios.");
       return;
@@ -49,24 +47,21 @@ export default function LoginScreen() {
       return;
     }
 
-    setLoading(true); // Inicia o loading
+    setLoading(true); 
 
     try {
-      // Chama o método do AuthController para login
       const result = await authController.loginComEmailSenha(email, senha);
 
       if (result.sucesso) {
-        setMensagemSucesso(result.mensagem); // Define mensagem de sucesso
-        // Limpar formulário
+        setMensagemSucesso(result.mensagem); 
         setEmail("");
         setSenha("");
 
-        // Redirecionar para a tela principal do aplicativo (ex: home na pasta (tabs))
         setTimeout(() => {
-          router.replace("/home"); // Use o nome da sua rota principal após o login (ex: app/(tabs)/home.js)
+          router.replace("/Home");
         }, 2000);
       } else {
-        setErro(result.mensagem); // Define mensagem de erro
+        setErro(result.mensagem); 
       }
     } catch (error) {
       console.error("Erro inesperado em LoginScreen:", error);
@@ -76,13 +71,11 @@ export default function LoginScreen() {
         setErro("Ocorreu um erro inesperado. Tente novamente.");
       }
     } finally {
-      setLoading(false); // Finaliza o loading
+      setLoading(false); 
     }
   };
 
   const handleForgotPassword = () => {
-    // Implementar navegação para tela de redefinição de senha
-    // router.push("/ForgotPasswordScreen"); // Crie esta rota no futuro
     Alert.alert("Redefinir Senha", "Funcionalidade de redefinição de senha será implementada em breve.");
   };
 
@@ -98,7 +91,6 @@ export default function LoginScreen() {
           <View style={styles.formContainer}>
             <Text style={styles.title}>Fazer Login</Text>
 
-            {/* Exibição das mensagens de erro/sucesso na tela */}
             {erro ? (
               <Text style={styles.errorMessage}>{erro}</Text>
             ) : null}
@@ -178,7 +170,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#092261', // Ajuste para sua cor uniblue
+    backgroundColor: '#092261', 
     paddingVertical: 20,
   },
   container: {
@@ -190,12 +182,11 @@ const styles = StyleSheet.create({
   logo: {
     width: 192,
     height: 192,
-    marginBottom: 32,
   },
   formContainer: {
     width: '100%',
     maxWidth: 400,
-    backgroundColor: '#051640', // Ajuste para sua cor uniblue-light
+    backgroundColor: '#051640', 
     borderRadius: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -212,14 +203,14 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   errorMessage: {
-    color: '#ff6347', // Um tom de vermelho/laranja para erros (Tomato)
+    color: '#ff6347', 
     textAlign: 'center',
     marginBottom: 10,
     fontSize: 14,
     fontWeight: 'bold',
   },
   successMessage: {
-    color: '#32cd32', // Um tom de verde para sucesso (LimeGreen)
+    color: '#32cd32', 
     textAlign: 'center',
     marginBottom: 10,
     fontSize: 14,

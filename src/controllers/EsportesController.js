@@ -2,7 +2,7 @@ import Esportes from "../models/Esportes";
 import DaoEsportes from "../models/dao/DaoEsportes"; 
 import ModelError from "../models/ModelError"; 
 
-import { ref, update } from "firebase/database"; 
+import { ref, update, get } from "firebase/database"; 
 
 export default class EsportesController {
   constructor() {
@@ -110,7 +110,6 @@ export default class EsportesController {
     }
   }
 
-  // --- Métodos auxiliares para padronizar o formato de retorno ---
   _retornarSucesso(mensagem, dados = null) {
     return { sucesso: true, mensagem, dados };
   }
